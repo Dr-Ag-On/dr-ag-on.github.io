@@ -2,21 +2,42 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>棋钟Web工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>棋钟 Web 工具</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <div class="player-display-area">
-            <!-- 玩家卡片动态生成 -->
-        </div>
-        <div class="operation-area">
-            <button id="start-game">开始游戏</button>
-            <button id="end-turn">结束回合</button>
-            <button id="pause-resume">暂停</button>
-            <button id="new-game">新建游戏</button>
+        <header>
+            <h1>棋钟</h1>
+        </header>
+        <main>
+            <section id="player-setup" class="active-section">
+                <h2>新建游戏</h2>
+
+                <div class="setup-controls">
+                    <label for="player-count">玩家数量 (2-6):</label>
+                    <input type="number" id="player-count" value="3" min="2" max="6">
+                </div>
+                <div id="player-cards-setup" class="player-cards-container"></div>
+                <button id="start-game-btn">开始游戏</button>
+            </section>
+            <section id="game-in-progress">
+                <div id="player-cards-game" class="player-cards-container"></div>
+                <div class="game-controls">
+                    <button id="next-turn-btn">结束回合</button>
+                    <button id="pause-resume-btn">暂停</button>
+                    <button id="new-game-in-progress-btn">新建游戏</button>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <button id="confirm-action-btn">确认</button>
+            <button id="cancel-action-btn">取消</button>
         </div>
     </div>
     <script src="script.js"></script>

@@ -1,141 +1,646 @@
-body {
-    background-color: #F5F5F5;
-    font-family: Arial, sans-serif;
+body, html {
     margin: 0;
     padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    height: 100%;
+    overflow: hidden; /* 避免平板上出现滚动条 */
 }
+
+
 
 .container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    max-width: 2048px;
+    height: 100%;
+    max-width: 100%; /* 适配平板宽度 */
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
-.player-display-area {
-    flex: 1;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+header {
+    background-color: #4A90E2; /* 蓝绿色调 */
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 36px; /* 标题文字 */
+    font-weight: bold;
+}
+
+main {
+    flex-grow: 1;
     padding: 20px;
+    overflow-y: auto; /* 内容超出时允许滚动 */
+    display: flex;
+    flex-direction: column;
+}
+
+section {
+    display: none; /* 默认隐藏所有部分 */
+    flex-direction: column;
+    align-items: center;
+}
+
+section.active-section {
+    display: flex; /* 显示当前活动部分 */
+}
+
+#player-setup h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.setup-controls {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+}
+
+.setup-controls label {
+    margin-right: 10px;
+}
+
+.setup-controls input[type="number"] {
+    width: 60px;
+    padding: 8px;
+    font-size: 18px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.player-cards-container {
+    display: flex;
+    flex-wrap: wrap; /* 允许换行 */
+    justify-content: center;
+    gap: 20px; /* 卡片间距 */
+    width: 100%;
+    margin-bottom: 30px;
 }
 
 .player-card {
-    background-color: white;
-    width: 15%;
-    height: 20vh;
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 15%; /* 占屏幕宽度的15% */
+    min-width: 150px; /* 最小宽度，避免过小 */
+    height: 20vh; /* 占屏幕高度的20% */
+    min-height: 120px; /* 最小高度 */
+    background-color: #f9f9f9; /* 统一背景色 */
+    border: 1px solid #ddd;
+    border-radius: 10px; /* 统一圆角 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 内部元素垂直分布 */
+    padding: 10px; /* 减少内边距以适应新的内部布局 */
+    box-sizing: border-box;
+    cursor: grab;
     position: relative;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s ease, opacity 0.2s ease;
 }
 
-.player-card.current {
-    background-color: #E0F2F1;
-    border: 2px solid #00BCD4;
-    animation: blink 1s infinite;
+.player-card .order-indicator {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
 }
 
-@keyframes blink {
+.card-top-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px; /* 顶部行与时间占位符之间的间距 */
+}
+
+.player-name-input {
+    flex-grow: 1;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.player-time-setup-placeholder {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #aaa;
+    text-align: center;
+    margin: auto 0;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 5px; /* 时间占位符与底部行之间的间距 */
+    padding-top: 5px; /* Add some padding to ensure content is visible */
+    align-items: center; /* 垂直居中对齐内部元素 */
+}
+
+.card-actions-group {
+    display: flex;
+    align-items: center;
+}
+
+.player-card .quick-actions {
+    display: flex;
+    /* gap: 5px; */ /* Replaced with margin on individual buttons */
+}
+
+.change-color-btn {
+    background-color: transparent;
+    color: #555;
+    border: none;
+    padding: 5px 8px; /* Adjusted padding for better text fit */
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px; /* Smaller font size to match text content */
+    margin-left: 8px; /* Space between sort buttons and this button */
+    transition: color 0.2s ease;
+    line-height: 1; /* Ensure text is vertically centered */
+}
+
+.change-color-btn:hover {
+    color: #FF7D00; /* Orange hover effect, consistent with quick-sort-btn */
+}
+
+.player-card .quick-sort-btn {
+    background-color: transparent;
+    color: #555;
+    border: none;
+    padding: 5px; /* 增加内边距，避免图标过于靠近边缘 */
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px; /* Font Awesome 图标大小 */
+    margin-right: 3px; /* 调整按钮间距 */
+    transition: color 0.2s ease;
+    line-height: 1; /* 确保图标垂直居中 */
+}
+
+.player-card .quick-sort-btn:last-child {
+    margin-right: 0;
+}
+
+.player-card .quick-sort-btn:hover {
+    color: #FF7D00; /* 橙色悬停效果 */
+}
+
+.player-card.dragging {
+    opacity: 0.7;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.placeholder {
+    background-color: #F0F0F0; /* 淡灰色背景 */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    /* width is set by JS to 80% of card width */
+    /* height is set by JS to card height */
+    box-sizing: border-box;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 0.9em;
+    animation: blinkPlaceholder 1s infinite; /* 闪烁动画 */
+}
+
+@keyframes blinkPlaceholder {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.player-card input[type="text"] {
+    width: 80%;
+    padding: 8px;
+    font-size: 20px; /* 玩家ID文字 */
+    text-align: center;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    margin-top: 20px; /* Add some margin to avoid overlap with order indicator */
+}
+
+.player-card .player-id-display {
+    font-size: 28px; /* 玩家ID文字 */
+    font-weight: normal;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.player-card .player-time {
+    font-size: 48px; /* 计时数字 */
+    font-weight: bold;
+}
+
+.player-card.active-player {
+    /* background-color will be set by JS or inherit from .player-card */
+    border: 3px solid #FFD700; /* Gold border for active player */
+    box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.7); /* Glowing effect */
+    transform: scale(1.05);
+    animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+    0% {
+        border-color: #FFD700;
+        box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.7);
+    }
     50% {
-        border-color: transparent;
+        border-color: #FFA500; /* Orange for pulsing effect */
+        box-shadow: 0 0 20px 10px rgba(255, 165, 0, 0.5);
+    }
+    100% {
+        border-color: #FFD700;
+        box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.7);
     }
 }
 
-.operation-area {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    padding: 20px;
+.player-card.inactive-player-highlight {
+    /* Styles for non-active players, if different from default .player-card */
+    /* For example, a slightly dimmed background or border */
+    opacity: 0.8;
 }
 
-button {
-    background-color: #00A896;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 15px 30px;
-    font-size: 24px;
+/* Ensure default player card has a less prominent style */
+
+.player-card.fade-in {
+    animation: fadeInAnimation 0.3s ease-out forwards;
+}
+
+.player-card.fade-out {
+    animation: fadeOutAnimation 0.3s ease-out forwards;
+}
+
+@keyframes fadeInAnimation {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeOutAnimation {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+
+.color-selector {
+    width: 25px;
+    height: 25px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
     cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s ease;
 }
 
-button:hover {
-    background-color: #00796B;
+.color-selector:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-.player-id {
-    font-size: 28px;
-    color: #333333;
-}
-
-.player-time {
-    font-size: 48px;
-    font-weight: bold;
-    color: #333333;
-}
-
-.sort-buttons {
+.color-palette {
     position: absolute;
-    right: 10px;
-    top: 10px;
-}
-
-.sort-buttons i {
-    font-size: 18px;
-    margin-left: 5px;
-    cursor: pointer;
-}
-
-.sort-buttons i:hover {
-    color: #FF7D00;
-}
-
-.color-picker {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.color-panel {
-    position: absolute;
+    bottom: calc(100% + 5px); /* Position above the selector */
+    left: 50%;
+    transform: translateX(-50%);
     background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 10px;
-    display: none;
-    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colors per row */
     gap: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 100; /* Ensure it's above other elements */
 }
 
 .color-option {
     width: 30px;
     height: 30px;
-    border-radius: 50%;
+    border-radius: 4px;
     cursor: pointer;
+    border: 1px solid transparent; /* For hover/active state */
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
+.color-option:hover {
+    border-color: #333;
+    transform: scale(1.1);
+}
+
+/* 按钮样式 */
+button {
+    padding: 0;
+    border: none;
+    background: none;
+    width: 120px; /* 按钮尺寸 */
+    height: 60px;  /* 按钮尺寸 */
+    background-color: #4A90E2; /* 蓝绿色调 */
+    color: white;
+    font-size: 24px; /* 按钮文字 */
+    font-weight: bold;
+    border-radius: 8px; /* 圆角矩形 */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 0 15px; /* 按钮间距 */
+}
+
+button:hover {
+    background-color: #357ABD;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.game-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    width: 100%;
+}
+
+#game-in-progress .player-card {
+    cursor: pointer; /* Allow clicking on cards in game */
+    transition: transform 0.2s ease-out, background-color 0.3s ease; /* Smooth transition for click effect */
+}
+
+#game-in-progress .player-card:active { /* Visual feedback on click */
+    transform: scale(0.95);
+}
+
+/* 模态框样式 */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 100;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    justify-content: center;
-    align-items: center;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6); /* 半透明黑色蒙层 */
 }
 
 .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 8px;
     text-align: center;
+}
+
+.modal-content p {
+    font-size: 24px; /* 白色大字体 */
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.modal-content button {
+    width: 100px;
+    height: 50px;
+    font-size: 20px;
+    margin: 0 10px;
+}
+
+#confirm-action-btn {
+    background-color: #D0021B; /* 红色 */
+}
+
+#confirm-action-btn:hover {
+    background-color: #B0021B;
+}
+
+#cancel-action-btn {
+    background-color: #aaa; /* 灰色 */
+}
+
+#cancel-action-btn:hover {
+    background-color: #888;
+}
+
+/* Add any additional styles or overrides here */
+
+/* 游戏进行中的卡片样式 */
+.player-card.game-card .player-time-game.time-warning {
+    color: red;
+    animation: blinkWarning 1s infinite;
+}
+
+@keyframes blinkWarning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.player-card.game-card.time-up-alert {
+    background-color: #ffcccc !important; /* 淡红色背景提示时间到 */
+    border-color: red !important;
+}
+
+.player-card.game-card.time-up-alert .player-name-game {
+    font-weight: bold;
+}
+
+.player-card.game-card.eliminated {
+    position: relative; /* For overlay positioning */
+    opacity: 0.6;
+}
+
+.player-card.game-card.eliminated .eliminated-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 0.7);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 8px; /* Match card's border-radius */
+    z-index: 10;
+}
+
+.game-card {
+    /* Styles for player cards during the game */
+    width: 15%; /* 占屏幕宽度的15% */
+    min-width: 150px; /* 最小宽度，避免过小 */
+    height: 20vh; /* 占屏幕高度的20% */
+    min-height: 120px; /* 最小高度 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* Distribute space for name and time */
+    align-items: center;
+    text-align: center;
+    padding: 10px; /* 与设置卡片一致的内边距 */
+    box-sizing: border-box; /* Ensure padding doesn't add to width/height */
+    border: 1px solid #ddd; /* 与设置卡片一致的边框 */
+    border-radius: 10px; /* 与设置卡片一致的圆角 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 与设置卡片一致的阴影 */
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.3s ease;
+    cursor: pointer; /* Allow clicking on cards in game */
+}
+
+.player-name-game {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #fff; /* Ensure text is visible on colored backgrounds */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.player-time-game {
+    font-size: 2.8em; /* Larger font for time */
+    font-family: 'Orbitron', sans-serif; /* Digital clock font */
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+}
+
+.active-player {
+    transform: scale(1.05); /* Slightly larger when active */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 15px rgba(255, 255, 255, 0.6); /* Bright glow */
+    border: 2px solid #fff;
+}
+
+.game-card.paused {
+    opacity: 0.7;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5) inset; /* Inner shadow to indicate pause */
+}
+
+.game-card.paused.active-player {
+    /* Ensure paused active player still looks distinct but clearly paused */
+    box-shadow: 0 0 10px rgba(0,0,0,0.5) inset, 0 0 10px rgba(255,255,255,0.5);
+}
+
+
+/* Flash animation for turn switch */
+@keyframes cardFlash {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; background-color: #fff; /* Temporary bright flash */ }
+    100% { opacity: 1; }
+}
+
+.player-card.flash {
+    animation: cardFlash 0.2s ease-in-out;
+}
+
+/* Ensure game in progress section is hidden initially */
+#game-in-progress {
+    display: none; /* Hidden by default, shown by JS */
+}
+
+#game-in-progress.active-section {
+    display: flex; /* Or 'grid', depending on your layout needs */
+    flex-direction: column;
+    align-items: center;
+}
+
+#player-cards-game {
+    display: flex;
+    flex-wrap: wrap; /* Allow cards to wrap on smaller screens */
+    justify-content: center; /* Center cards in the container */
+    gap: 15px;
+    padding: 20px;
+    width: 100%;
+    max-width: 900px; /* Max width for the game area */
+}
+
+.game-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+.game-controls button {
+    width: 150px; /* 增加按钮宽度 */
+    height: 70px;  /* 增加按钮高度 */
+    padding: 12px 25px;
+    font-size: 1.5em; /* 增大字体 */
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.game-controls button:hover {
+    transform: translateY(-2px);
+}
+
+#pause-resume-btn {
+    background-color: #ffc107; /* Amber */
+    color: #333;
+    border: none;
+}
+
+#pause-resume-btn:hover {
+    background-color: #e0a800;
+}
+
+#new-game-in-progress-btn {
+    background-color: #dc3545; /* Red */
+    color: white;
+    border: none;
+}
+
+#new-game-in-progress-btn:hover {
+    background-color: #c82333;
+}
+
+/* Ensure sections take up space correctly */
+.section {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Hide sections not active */
+.section:not(.active-section) {
+    display: none;
+}
+
+/* 适配平板的特定调整 */
+@media (min-width: 768px) {
+    .player-card {
+        /* 在平板上可以适当调整卡片大小 */
+    }
+    header h1 {
+        font-size: 40px;
+    }
+    main {
+        padding: 30px;
+    }
 }
