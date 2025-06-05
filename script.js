@@ -472,6 +472,30 @@ document.addEventListener('DOMContentLoaded', () => {
             playerCardsGameDiv.appendChild(playerGroup);
         });
         highlightActivePlayerCard();
+
+        // 在游戏控制区域添加Next Round Start按钮
+        const gameControlsDiv = document.querySelector('.game-controls');
+        if (gameControlsDiv) {
+            // 先移除已存在的Next Round Start按钮
+            const existingNextRoundBtn = gameControlsDiv.querySelector('.next-round-btn');
+            if (existingNextRoundBtn) {
+                existingNextRoundBtn.remove();
+            }
+            
+            // 创建Next Round Start按钮
+            const nextRoundBtn = document.createElement('button');
+            nextRoundBtn.classList.add('next-round-btn');
+            nextRoundBtn.textContent = 'Next Round Start';
+            nextRoundBtn.addEventListener('click', () => {
+                // 重置所有玩家的pass状态
+                players.forEach(player => {
+                    player.passed = false;
+                });
+                // 重新渲染玩家卡片
+                renderPlayerCardsGame();
+            });
+            gameControlsDiv.appendChild(nextRoundBtn);
+        }
     }
 
     function highlightActivePlayerCard() {

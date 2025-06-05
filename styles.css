@@ -817,3 +817,31 @@ button:disabled {
     border-radius: 5px;
     z-index: 1;
 }
+
+.next-round-container {
+    display: none;
+}
+
+.next-round-btn {
+    width: 80%;
+    height: 100px;
+    background-color: #dc3545; /* 与结束回合按钮相同的红色 */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 2.5em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    margin: 0;
+}
+
+.next-round-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.next-round-btn:active {
+    transform: translateY(0);
+    background-color: #bd2130;
+}
