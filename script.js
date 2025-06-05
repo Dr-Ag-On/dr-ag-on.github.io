@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval = null;
     let gamePaused = false;
     let currentTurnStartTime = 0; // Timestamp for the start of the active player's current segment of time
-    // let turnSwitchSound = new Audio('ding.mp3'); // Load your sound effect
+    //每回合开始播放的音频
+    const turnStartSound = new Audio('turn_start.mp3'); // 预加载回合开始音频
 
     const defaultPlayerNames = ["雷锋", "dulang", "开心"];
     const availableColors = ['#FF6B6B', '#45B7D1', '#4ECDC4', '#FED766', '#9B59B6', '#F3A683', '#FFC300', '#DAF7A6', '#C70039', '#900C3F'];
@@ -346,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Game In Progress --- 
     const turnSwitchSound = new Audio('turn-switch.mp3'); // Placeholder for sound file
-    const timeUpSound = new Audio('time-up.mp3'); // Placeholder for sound file
 
     startGameBtn.addEventListener('click', () => {
 
@@ -380,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 狗屎啊 这个函数调用方是谁啊？
     function handleTimeUp(player) {
         // This function is not actively used in Mode 1 as time counts up.
         // Kept for potential future modes or if Mode 1 rules change to include a time limit.
@@ -445,7 +446,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPlayerIndex = players.findIndex(p => p.id === player.id);
         currentTurnStartTime = Date.now(); 
         highlightActivePlayerCard();
-        turnSwitchSound.play().catch(e => console.warn("Turn switch sound play failed", e));
+        
+        // 重置音频并播放
+        turnStartSound.currentTime = 0;
+        turnStartSound.play().catch(e => console.warn("Turn start sound play failed", e));
 
         // Mode 1: Count up
         timerInterval = setInterval(() => {
@@ -564,4 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Load ---
     initializeApp();
+
+    // 预加载音频
+    turnStartSound.load();
 });
