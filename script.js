@@ -575,9 +575,38 @@ document.addEventListener('DOMContentLoaded', () => {
             pauseDulangBgm();
         }
 
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-        const nextPlayer = players[currentPlayerIndex];
-        startPlayerTurn(nextPlayer);
+        playTurnSwitchFeedback(players[currentPlayerIndex].id);
+        
+        // 找到下一个未pass的玩家
+        let nextIndex = (currentPlayerIndex + 1) % players.length;
+        let allPassed = true; // 标记是否所有玩家都pass了
+        
+        while (players[nextIndex].passed) {
+            nextIndex = (nextIndex + 1) % players.length;
+            // 如果所有玩家都pass了，回到当前玩家
+            if (nextIndex === currentPlayerIndex) {
+                allPassed = true;
+                break;
+            }
+        }
+        
+        // 如果还有未pass的玩家
+        if (!players[nextIndex].passed) {
+            allPassed = false;
+        }
+        
+        // 如果所有玩家都pass了，自动暂停游戏
+        if (allPassed) {
+            console.log("进入暂停状态")
+            gamePaused = true;
+            pauseResumeBtn.textContent = '继续 (Alt+S)';
+            nextTurnBtn.disabled = true;
+            highlightActivePlayerCard();
+            return;
+        }
+        
+        currentPlayerIndex = nextIndex;
+        startPlayerTurn(players[currentPlayerIndex]);
     }
 
     function switchToPlayer(player) {
