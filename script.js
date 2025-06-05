@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerSetupSection.classList.remove('active-section');
         gameInProgressSection.classList.add('active-section');
         gamePaused = false;
-        pauseResumeBtn.textContent = '暂停 (Alt+S)';
+        pauseResumeBtn.textContent = '暂停 (S)';
         pauseResumeBtn.disabled = false;
         nextTurnBtn.disabled = false; // Assuming nextTurnBtn is still part of UI for manual advance
         players.forEach(p => {
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 添加下一位玩家按键
             const nextPlayerBtn = document.createElement('button');
             nextPlayerBtn.classList.add('next-player-btn');
-            nextPlayerBtn.textContent = `下一位 (Alt+${index + 1})`;
+            nextPlayerBtn.textContent = `下一位 (${index + 1})`;
             nextPlayerBtn.disabled = true; // 默认禁用
             nextPlayerBtn.addEventListener('click', () => {
                 if (!gamePaused && player.id === players[currentPlayerIndex].id) {
@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (allPassed) {
             console.log("进入暂停状态")
             gamePaused = true;
-            pauseResumeBtn.textContent = '继续 (Alt+S)';
+            pauseResumeBtn.textContent = '继续 (S)';
             nextTurnBtn.disabled = true;
             highlightActivePlayerCard();
             return;
@@ -629,12 +629,12 @@ document.addEventListener('DOMContentLoaded', () => {
         gamePaused = !gamePaused;
         if (gamePaused) {
             stopCurrentPlayerTimer();
-            pauseResumeBtn.textContent = '继续 (Alt+S)';
+            pauseResumeBtn.textContent = '继续 (S)';
             nextTurnBtn.disabled = true;
             // 暂停时也暂停 BGM
             pauseDulangBgm();
         } else {
-            pauseResumeBtn.textContent = '暂停 (Alt+S)';
+            pauseResumeBtn.textContent = '暂停 (S)';
             nextTurnBtn.disabled = false;
             startPlayerTurn(players[currentPlayerIndex]); // Resume with the current player
         }
@@ -655,16 +655,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (gameInProgressSection.classList.contains('active-section')) {
-            // 检查是否按下了Alt + 数字键
-            if (e.altKey && e.key >= '1' && e.key <= '9') {
+            // 检查是否按下了数字键
+            if (e.key >= '1' && e.key <= '9') {
                 const playerIndex = parseInt(e.key) - 1;
                 if (playerIndex < players.length && playerIndex === currentPlayerIndex) {
                     e.preventDefault();
                     switchToNextPlayer();
                 }
             }
-            // 检查是否按下了Alt + S键
-            if (e.altKey && e.key.toLowerCase() === 's') {
+            // 检查是否按下了S键
+            if (e.key.toLowerCase() === 's') {
                 e.preventDefault();
                 pauseResumeBtn.click();
             }
