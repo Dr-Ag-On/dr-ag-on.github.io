@@ -653,3 +653,31 @@ button:disabled {
         padding: 30px;
     }
 }
+
+.next-player-btn {
+    width: 80%;
+    height: 40px;
+    margin-top: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.next-player-btn:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.next-player-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.next-player-btn:active:not(:disabled) {
+    transform: translateY(0);
+}

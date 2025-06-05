@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerSetupSection.classList.remove('active-section');
         gameInProgressSection.classList.add('active-section');
         gamePaused = false;
-        pauseResumeBtn.textContent = '暂停';
+        pauseResumeBtn.textContent = '暂停 (Alt+S)';
         pauseResumeBtn.disabled = false;
         nextTurnBtn.disabled = false; // Assuming nextTurnBtn is still part of UI for manual advance
         players.forEach(p => {
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPlayerCardsGame() {
         playerCardsGameDiv.innerHTML = '';
-        players.forEach((player) => {
+        players.forEach((player, index) => {
             const card = document.createElement('div');
             card.classList.add('player-card', 'game-card');
             card.style.backgroundColor = player.color;
@@ -407,10 +407,20 @@ document.addEventListener('DOMContentLoaded', () => {
             timeDisplay.textContent = formatTime(player.time);
             card.appendChild(timeDisplay);
 
+            // 添加下一位玩家按键
+            const nextPlayerBtn = document.createElement('button');
+            nextPlayerBtn.classList.add('next-player-btn');
+            nextPlayerBtn.textContent = `下一位 (Alt+${index + 1})`;
+            nextPlayerBtn.disabled = true; // 默认禁用
+            nextPlayerBtn.addEventListener('click', () => {
+                if (!gamePaused && player.id === players[currentPlayerIndex].id) {
+                    switchToNextPlayer();
+                }
+            });
+            card.appendChild(nextPlayerBtn);
+
             card.addEventListener('click', () => {
                 if (gamePaused || player.id !== players[currentPlayerIndex].id) {
-                    // If game is paused, or clicked card is not the current player, switch to this player
-                    // (This allows selecting any player to be next, not just sequential)
                     if (!gamePaused) {
                          const targetPlayerIndex = players.findIndex(p => p.id === player.id);
                          if (targetPlayerIndex !== -1) {
@@ -418,7 +428,6 @@ document.addEventListener('DOMContentLoaded', () => {
                          }
                     }
                 } else {
-                    // Clicked on the current active player, advance to next sequential player
                     switchToNextPlayer();
                 }
             });
@@ -430,10 +439,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function highlightActivePlayerCard() {
         document.querySelectorAll('#player-cards-game .player-card').forEach(card => {
             card.classList.remove('active-player', 'paused');
+            const nextPlayerBtn = card.querySelector('.next-player-btn');
+            if (nextPlayerBtn) {
+                nextPlayerBtn.disabled = true;
+            }
+            
             if (card.dataset.playerId === players[currentPlayerIndex].id) {
                 card.classList.add('active-player');
                 if (gamePaused) {
                     card.classList.add('paused');
+                }
+                // 启用当前玩家的下一位按键
+                const nextPlayerBtn = card.querySelector('.next-player-btn');
+                if (nextPlayerBtn) {
+                    nextPlayerBtn.disabled = false;
                 }
             }
         });
@@ -502,10 +521,10 @@ document.addEventListener('DOMContentLoaded', () => {
         gamePaused = !gamePaused;
         if (gamePaused) {
             stopCurrentPlayerTimer();
-            pauseResumeBtn.textContent = '继续';
+            pauseResumeBtn.textContent = '继续 (Alt+S)';
             nextTurnBtn.disabled = true;
         } else {
-            pauseResumeBtn.textContent = '暂停';
+            pauseResumeBtn.textContent = '暂停 (Alt+S)';
             nextTurnBtn.disabled = false;
             startPlayerTurn(players[currentPlayerIndex]); // Resume with the current player
         }
@@ -525,10 +544,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('keydown', (e) => {
-        if (gameInProgressSection.classList.contains('active-section') && !gamePaused) {
-            if (e.code === 'Space' || e.code === 'Enter') {
+        if (gameInProgressSection.classList.contains('active-section')) {
+            // 检查是否按下了Alt + 数字键
+            if (e.altKey && e.key >= '1' && e.key <= '9') {
+                const playerIndex = parseInt(e.key) - 1;
+                if (playerIndex < players.length && playerIndex === currentPlayerIndex) {
+                    e.preventDefault();
+                    switchToNextPlayer();
+                }
+            }
+            // 检查是否按下了Alt + S键
+            if (e.altKey && e.key.toLowerCase() === 's') {
                 e.preventDefault();
-                switchToNextPlayer();
+                pauseResumeBtn.click();
             }
         }
     });
