@@ -631,6 +631,8 @@ document.addEventListener('DOMContentLoaded', () => {
             stopCurrentPlayerTimer();
             pauseResumeBtn.textContent = '继续 (Alt+S)';
             nextTurnBtn.disabled = true;
+            // 暂停时也暂停 BGM
+            pauseDulangBgm();
         } else {
             pauseResumeBtn.textContent = '暂停 (Alt+S)';
             nextTurnBtn.disabled = false;
