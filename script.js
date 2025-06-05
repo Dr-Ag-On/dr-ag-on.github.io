@@ -532,13 +532,13 @@ document.addEventListener('DOMContentLoaded', () => {
         turnStartSound.currentTime = 0;
         turnStartSound.play().catch(e => console.warn("Turn start sound play failed", e));
 
-        // Mode 1: Count up
+        // Mode 1: Count up with 0.1s precision
         timerInterval = setInterval(() => {
             if (gamePaused) return;
             const elapsedTimeInTurn = (Date.now() - currentTurnStartTime) / 1000;
             const totalPlayerTime = player.time + elapsedTimeInTurn;
             updatePlayerCardTimeDisplay(player, totalPlayerTime);
-        }, 250); 
+        }, 100); // 更新频率提高到100ms
     }
 
     function stopCurrentPlayerTimer() {
@@ -654,7 +654,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatTime(totalSeconds) {
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = Math.floor(totalSeconds % 60);
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        const tenths = Math.floor((totalSeconds % 1) * 10); // 获取0.1秒的精度
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${tenths}`;
     }
 
     // --- Modal Logic --- 
