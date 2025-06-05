@@ -507,22 +507,23 @@ button:disabled {
 
 .game-card {
     /* Styles for player cards during the game */
-    width: 22%; /* 增大卡片宽度占比 */
-    min-width: 220px; /* 调整最小宽度以容纳按钮 */
-    height: 240px; /* 增加卡片高度 */
-    min-height: 200px; /* 配合height调整最小高度 */
+    width: 100%; /* 改为100%以适应父容器 */
+    min-width: 220px;
+    height: 200px;
+    min-height: 180px;
     display: flex;
     flex-direction: column;
-    justify-content: space-around; /* Distribute space for name and time */
+    justify-content: space-around;
     align-items: center;
     text-align: center;
-    padding: 10px; /* 与设置卡片一致的内边距 */
-    box-sizing: border-box; /* Ensure padding doesn't add to width/height */
-    border: 1px solid #ddd; /* 与设置卡片一致的边框 */
-    border-radius: 10px; /* 与设置卡片一致的圆角 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 与设置卡片一致的阴影 */
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.3s ease;
-    cursor: pointer; /* Allow clicking on cards in game */
+    cursor: pointer;
+    margin-bottom: 10px; /* 减小与按钮的间距 */
 }
 
 .player-name-game {
@@ -588,6 +589,7 @@ button:disabled {
     padding: 20px;
     width: 100%;
     max-width: 900px; /* Max width for the game area */
+    margin-bottom: 40px; /* 为底部的按钮留出空间 */
 }
 
 .game-controls {
@@ -658,32 +660,42 @@ button:disabled {
     }
 }
 
+.next-player-container {
+    width: 100%; /* 改为100%以适应父容器 */
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .next-player-btn {
     width: 80%;
     height: 40px;
-    margin-top: 10px;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: #333;
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: none;
     border-radius: 5px;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin: 0;
 }
 
 .next-player-btn:hover:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: #444; /* 深灰色悬停效果 */
     transform: translateY(-2px);
 }
 
 .next-player-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #666; /* 禁用状态使用更浅的灰色 */
+    color: rgba(255, 255, 255, 0.7); /* 文字也稍微变淡 */
 }
 
 .next-player-btn:active:not(:disabled) {
     transform: translateY(0);
+    background-color: #222; /* 点击时更深的黑色 */
 }
 
 .drawer {
@@ -736,4 +748,13 @@ button:disabled {
 
 .drawer-content button:hover {
     background-color: #c82333;
+}
+
+.player-group {
+    width: 22%;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
 }

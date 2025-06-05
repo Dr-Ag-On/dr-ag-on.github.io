@@ -394,6 +394,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPlayerCardsGame() {
         playerCardsGameDiv.innerHTML = '';
         players.forEach((player, index) => {
+            // 创建玩家卡片和按钮的容器组
+            const playerGroup = document.createElement('div');
+            playerGroup.classList.add('player-group');
+
             const card = document.createElement('div');
             card.classList.add('player-card', 'game-card');
             card.style.backgroundColor = player.color;
@@ -409,6 +413,10 @@ document.addEventListener('DOMContentLoaded', () => {
             timeDisplay.textContent = formatTime(player.time);
             card.appendChild(timeDisplay);
 
+            // 创建下一位按钮容器
+            const nextPlayerContainer = document.createElement('div');
+            nextPlayerContainer.classList.add('next-player-container');
+            
             // 添加下一位玩家按键
             const nextPlayerBtn = document.createElement('button');
             nextPlayerBtn.classList.add('next-player-btn');
@@ -419,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     switchToNextPlayer();
                 }
             });
-            card.appendChild(nextPlayerBtn);
+            nextPlayerContainer.appendChild(nextPlayerBtn);
 
             card.addEventListener('click', () => {
                 if (gamePaused || player.id !== players[currentPlayerIndex].id) {
@@ -433,7 +441,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     switchToNextPlayer();
                 }
             });
-            playerCardsGameDiv.appendChild(card);
+
+            // 将卡片和按钮容器添加到组中
+            playerGroup.appendChild(card);
+            playerGroup.appendChild(nextPlayerContainer);
+            playerCardsGameDiv.appendChild(playerGroup);
         });
         highlightActivePlayerCard();
     }
@@ -441,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function highlightActivePlayerCard() {
         document.querySelectorAll('#player-cards-game .player-card').forEach(card => {
             card.classList.remove('active-player', 'paused');
-            const nextPlayerBtn = card.querySelector('.next-player-btn');
+            const nextPlayerBtn = card.parentElement.querySelector('.next-player-btn');
             if (nextPlayerBtn) {
                 nextPlayerBtn.disabled = true;
             }
@@ -452,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.classList.add('paused');
                 }
                 // 启用当前玩家的下一位按键
-                const nextPlayerBtn = card.querySelector('.next-player-btn');
+                const nextPlayerBtn = card.parentElement.querySelector('.next-player-btn');
                 if (nextPlayerBtn) {
                     nextPlayerBtn.disabled = false;
                 }
