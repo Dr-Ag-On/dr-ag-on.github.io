@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelActionBtn = document.getElementById('cancel-action-btn');
     const drawerToggle = document.getElementById('drawer-toggle');
     const drawerContent = document.querySelector('.drawer-content');
+    const orderAdjustmentModal = document.getElementById('order-adjustment-modal');
+    const orderAdjustmentList = document.getElementById('order-adjustment-list');
+    const confirmOrderBtn = document.getElementById('confirm-order-btn');
+    const cancelOrderBtn = document.getElementById('cancel-order-btn');
 
     let currentTimerMode = 1; // Default to mode 1
     const timerModeSettings = {
@@ -487,12 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nextRoundBtn.classList.add('next-round-btn');
             nextRoundBtn.textContent = 'Next Round Start';
             nextRoundBtn.addEventListener('click', () => {
-                // 重置所有玩家的pass状态
-                players.forEach(player => {
-                    player.passed = false;
-                });
-                // 重新渲染玩家卡片
-                renderPlayerCardsGame();
+                showOrderAdjustmentModal();
             });
             gameControlsDiv.appendChild(nextRoundBtn);
         }
@@ -684,6 +683,90 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reload settings or generate defaults for the setup screen
         initializeApp(); 
     }
+
+    function showOrderAdjustmentModal() {
+        // 重置所有玩家的pass状态
+        players.forEach(player => {
+            player.passed = false;
+        });
+
+        // 清空并重新填充调整列表
+        orderAdjustmentList.innerHTML = '';
+        players.forEach((player, index) => {
+            const item = document.createElement('div');
+            item.classList.add('order-adjustment-item');
+            item.dataset.playerId = player.id;
+
+            const playerInfo = document.createElement('div');
+            playerInfo.classList.add('player-info');
+
+            const colorIndicator = document.createElement('div');
+            colorIndicator.classList.add('player-color');
+            colorIndicator.style.backgroundColor = player.color;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.classList.add('player-name');
+            nameSpan.textContent = player.name;
+
+            playerInfo.appendChild(colorIndicator);
+            playerInfo.appendChild(nameSpan);
+
+            const orderControls = document.createElement('div');
+            orderControls.classList.add('order-controls');
+
+            const moveUpBtn = document.createElement('button');
+            moveUpBtn.classList.add('order-btn');
+            moveUpBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            moveUpBtn.disabled = index === 0;
+            moveUpBtn.addEventListener('click', () => movePlayerInOrder(player.id, 'up'));
+
+            const moveDownBtn = document.createElement('button');
+            moveDownBtn.classList.add('order-btn');
+            moveDownBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
+            moveDownBtn.disabled = index === players.length - 1;
+            moveDownBtn.addEventListener('click', () => movePlayerInOrder(player.id, 'down'));
+
+            orderControls.appendChild(moveUpBtn);
+            orderControls.appendChild(moveDownBtn);
+
+            item.appendChild(playerInfo);
+            item.appendChild(orderControls);
+            orderAdjustmentList.appendChild(item);
+        });
+
+        orderAdjustmentModal.style.display = 'block';
+    }
+
+    function movePlayerInOrder(playerId, direction) {
+        const currentIndex = players.findIndex(p => p.id === playerId);
+        if (currentIndex === -1) return;
+
+        const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+        if (newIndex < 0 || newIndex >= players.length) return;
+
+        // 交换玩家位置
+        [players[currentIndex], players[newIndex]] = [players[newIndex], players[currentIndex]];
+        
+        // 更新玩家顺序
+        players.forEach((player, index) => {
+            player.order = index;
+        });
+
+        // 重新渲染调整列表
+        showOrderAdjustmentModal();
+    }
+
+    confirmOrderBtn.addEventListener('click', () => {
+        orderAdjustmentModal.style.display = 'none';
+        renderPlayerCardsGame();
+        // 从第一位玩家开始计时
+        currentPlayerIndex = 0;
+        startPlayerTurn(players[currentPlayerIndex]);
+    });
+
+    cancelOrderBtn.addEventListener('click', () => {
+        orderAdjustmentModal.style.display = 'none';
+    });
 
     // --- Initial Load ---
     initializeApp();
