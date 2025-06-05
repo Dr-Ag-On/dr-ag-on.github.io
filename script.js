@@ -68,7 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: defaultName,
                 color: defaultColor,
                 time: 0, // Total accumulated time for this player in the current game
-                order: i
+                order: i,
+                passed: false // 添加passed属性
             });
         }
     }
@@ -402,6 +403,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.classList.add('player-card', 'game-card');
             card.style.backgroundColor = player.color;
             card.dataset.playerId = player.id;
+            if (player.passed) {
+                card.classList.add('passed');
+            }
 
             const nameDisplay = document.createElement('div');
             nameDisplay.classList.add('player-name-game');
@@ -429,6 +433,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             nextPlayerContainer.appendChild(nextPlayerBtn);
 
+            // 创建passby按钮容器
+            const passbyContainer = document.createElement('div');
+            passbyContainer.classList.add('passby-container');
+            
+            // 添加passby按钮
+            const passbyBtn = document.createElement('button');
+            passbyBtn.classList.add('passby-btn');
+            passbyBtn.textContent = 'Pass';
+            passbyBtn.disabled = player.passed; // 如果已经pass则禁用
+            passbyBtn.addEventListener('click', () => {
+                if (!gamePaused && player.id === players[currentPlayerIndex].id) {
+                    player.passed = true;
+                    card.classList.add('passed');
+                    passbyBtn.disabled = true;
+                    switchToNextPlayer();
+                }
+            });
+            passbyContainer.appendChild(passbyBtn);
+
             card.addEventListener('click', () => {
                 if (gamePaused || player.id !== players[currentPlayerIndex].id) {
                     if (!gamePaused) {
@@ -445,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 将卡片和按钮容器添加到组中
             playerGroup.appendChild(card);
             playerGroup.appendChild(nextPlayerContainer);
+            playerGroup.appendChild(passbyContainer);
             playerCardsGameDiv.appendChild(playerGroup);
         });
         highlightActivePlayerCard();
@@ -510,13 +534,41 @@ document.addEventListener('DOMContentLoaded', () => {
     function switchToNextPlayer() {
         stopCurrentPlayerTimer();
         playTurnSwitchFeedback(players[currentPlayerIndex].id);
+        
+        // 找到下一个未pass的玩家
         let nextIndex = (currentPlayerIndex + 1) % players.length;
+        let allPassed = true; // 标记是否所有玩家都pass了
+        
+        while (players[nextIndex].passed) {
+            nextIndex = (nextIndex + 1) % players.length;
+            // 如果所有玩家都pass了，回到当前玩家
+            if (nextIndex === currentPlayerIndex) {
+                allPassed = true;
+                break;
+            }
+        }
+        
+        // 如果还有未pass的玩家
+        if (!players[nextIndex].passed) {
+            allPassed = false;
+        }
+        
+        // 如果所有玩家都pass了，自动暂停游戏
+        if (allPassed) {
+            console.log("进入暂停状态")
+            gamePaused = true;
+            pauseResumeBtn.textContent = '继续 (Alt+S)';
+            nextTurnBtn.disabled = true;
+            highlightActivePlayerCard();
+            return;
+        }
+        
         currentPlayerIndex = nextIndex;
         startPlayerTurn(players[currentPlayerIndex]);
     }
 
     function switchToPlayer(player) {
-        if (player.eliminated) return; // Cannot switch to an eliminated player (general case, though elimination is mode-specific)
+        if (player.passed) return; // 不能切换到已pass的玩家
         if (player.id === players[currentPlayerIndex].id && !gamePaused) return; 
         stopCurrentPlayerTimer();
         playTurnSwitchFeedback(players[currentPlayerIndex].id); 
