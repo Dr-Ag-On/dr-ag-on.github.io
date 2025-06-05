@@ -24,6 +24,10 @@ header {
     color: white;
     padding: 15px 20px;
     text-align: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 header h1 {
@@ -680,4 +684,56 @@ button:disabled {
 
 .next-player-btn:active:not(:disabled) {
     transform: translateY(0);
+}
+
+.drawer {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.drawer-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    width: auto;
+    height: auto;
+    margin: 0;
+}
+
+.drawer-toggle:hover {
+    background: none;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.drawer-content {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    display: none;
+    z-index: 1000;
+}
+
+.drawer-content.active {
+    display: block;
+}
+
+.drawer-content button {
+    width: 120px;
+    height: 40px;
+    font-size: 16px;
+    margin: 0;
+    background-color: #dc3545;
+}
+
+.drawer-content button:hover {
+    background-color: #c82333;
 }

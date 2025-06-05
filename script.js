@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalMessage = document.getElementById('modal-message');
     const confirmActionBtn = document.getElementById('confirm-action-btn');
     const cancelActionBtn = document.getElementById('cancel-action-btn');
+    const drawerToggle = document.getElementById('drawer-toggle');
+    const drawerContent = document.querySelector('.drawer-content');
 
     let currentTimerMode = 1; // Default to mode 1
     const timerModeSettings = {
@@ -599,4 +601,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 预加载音频
     turnStartSound.load();
+
+    // 添加抽屉交互
+    drawerToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        drawerContent.classList.toggle('active');
+    });
+
+    // 点击其他地方关闭抽屉
+    document.addEventListener('click', (e) => {
+        if (!drawerContent.contains(e.target) && !drawerToggle.contains(e.target)) {
+            drawerContent.classList.remove('active');
+        }
+    });
 });

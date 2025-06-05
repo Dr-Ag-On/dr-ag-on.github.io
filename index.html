@@ -11,6 +11,14 @@
     <div class="container">
         <header>
             <h1>棋钟</h1>
+            <div class="drawer">
+                <button id="drawer-toggle" class="drawer-toggle">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="drawer-content">
+                    <button id="new-game-in-progress-btn">新建游戏</button>
+                </div>
+            </div>
         </header>
         <main>
             <section id="player-setup" class="active-section">
@@ -27,8 +35,7 @@
                 <div id="player-cards-game" class="player-cards-container"></div>
                 <div class="game-controls">
                     <button id="next-turn-btn">结束回合</button>
-                    <button id="pause-resume-btn">暂停</button>
-                    <button id="new-game-in-progress-btn">新建游戏</button>
+                    <button id="pause-resume-btn">暂停 (Alt+S)</button>
                 </div>
             </section>
         </main>
