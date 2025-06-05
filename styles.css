@@ -59,6 +59,7 @@ section.active-section {
     margin-bottom: 20px;
     display: flex;
     align-items: center;
+    gap: 6px; /* 缩小按钮组间距 */
     font-size: 20px;
 }
 
@@ -84,10 +85,10 @@ section.active-section {
 }
 
 .player-card {
-    width: 15%; /* 占屏幕宽度的15% */
-    min-width: 150px; /* 最小宽度，避免过小 */
-    height: 20vh; /* 占屏幕高度的20% */
-    min-height: 120px; /* 最小高度 */
+    width: 22%; /* 增大卡片宽度占比 */
+    min-width: 220px; /* 调整最小宽度以容纳按钮 */
+    height: 240px; /* 增加卡片高度 */
+    min-height: 200px; /* 配合height调整最小高度 */
     background-color: #f9f9f9; /* 统一背景色 */
     border: 1px solid #ddd;
     border-radius: 10px; /* 统一圆角 */
@@ -117,6 +118,7 @@ section.active-section {
 .card-top-row {
     display: flex;
     align-items: center;
+    gap: 6px; /* 缩小按钮组间距 */
     width: 100%;
     margin-bottom: 5px; /* 顶部行与时间占位符之间的间距 */
 }
@@ -138,22 +140,23 @@ section.active-section {
     flex-grow: 1;
     display: flex;
     align-items: center;
+    gap: 6px; /* 缩小按钮组间距 */
     justify-content: center;
 }
 
 .card-bottom-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     width: 100%;
     margin-top: 5px; /* 时间占位符与底部行之间的间距 */
-    padding-top: 5px; /* Add some padding to ensure content is visible */
-    align-items: center; /* 垂直居中对齐内部元素 */
+    padding: 0 10px 5px; /* 与player-card的10px内边距保持一致 */
 }
 
 .card-actions-group {
     display: flex;
     align-items: center;
+    gap: 6px; /* 缩小按钮组间距 */
 }
 
 .player-card .quick-actions {
@@ -164,13 +167,14 @@ section.active-section {
 .change-color-btn {
     background-color: transparent;
     color: #555;
-    border: none;
-    padding: 5px 8px; /* Adjusted padding for better text fit */
+    border: 1px solid #ddd; /* 添加浅灰色边框 */
+    padding: 2px 4px; /* 再次减小按钮内边距 */
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px; /* Smaller font size to match text content */
-    margin-left: 8px; /* Space between sort buttons and this button */
-    transition: color 0.2s ease;
+    font-size: 11px; /* 继续缩小文字尺寸 */
+    margin-left: 0; /* 统一使用card-actions-group的gap控制间距 */
+    align-self: center; /* 确保颜色按钮垂直居中 */
+    transition: color 0.2s ease, border-color 0.2s ease; /* 修正重复的过渡属性 */
     line-height: 1; /* Ensure text is vertically centered */
 }
 
@@ -181,13 +185,15 @@ section.active-section {
 .player-card .quick-sort-btn {
     background-color: transparent;
     color: #555;
-    border: none;
-    padding: 5px; /* 增加内边距，避免图标过于靠近边缘 */
+    border: 1px solid #ddd; /* 添加浅灰色边框 */
+    padding: 1px; /* 再次减小图标按钮内边距 */
     border-radius: 4px;
     cursor: pointer;
-    font-size: 18px; /* Font Awesome 图标大小 */
-    margin-right: 3px; /* 调整按钮间距 */
-    transition: color 0.2s ease;
+    font-size: 14px; /* 继续缩小图标尺寸 */
+    min-width: 0; /* 移除默认最小宽度限制 */
+    min-height: 0; /* 移除默认最小高度限制 */
+    margin-right: 0; /* 统一使用card-actions-group的gap控制间距 */
+    transition: color 0.2s ease, border-color 0.2s ease; /* 修正重复的过渡属性 */
     line-height: 1; /* 确保图标垂直居中 */
 }
 
@@ -215,6 +221,7 @@ section.active-section {
     margin: 10px;
     display: flex;
     align-items: center;
+    gap: 6px; /* 缩小按钮组间距 */
     justify-content: center;
     color: #555;
     font-size: 0.9em;
@@ -496,10 +503,10 @@ button:disabled {
 
 .game-card {
     /* Styles for player cards during the game */
-    width: 15%; /* 占屏幕宽度的15% */
-    min-width: 150px; /* 最小宽度，避免过小 */
-    height: 20vh; /* 占屏幕高度的20% */
-    min-height: 120px; /* 最小高度 */
+    width: 22%; /* 增大卡片宽度占比 */
+    min-width: 220px; /* 调整最小宽度以容纳按钮 */
+    height: 240px; /* 增加卡片高度 */
+    min-height: 200px; /* 配合height调整最小高度 */
     display: flex;
     flex-direction: column;
     justify-content: space-around; /* Distribute space for name and time */
@@ -582,14 +589,16 @@ button:disabled {
 .game-controls {
     margin-top: 20px;
     display: flex;
-    gap: 15px;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center; /* 垂直排列并居中 */
 }
 
 .game-controls button {
-    width: 150px; /* 增加按钮宽度 */
-    height: 70px;  /* 增加按钮高度 */
+    width: 80%; /* 占容器80%宽度 */
+    height: 100px;  /* 进一步增大按钮高度 */
     padding: 12px 25px;
-    font-size: 1.5em; /* 增大字体 */
+    font-size: 2.5em; /* 配合尺寸增大字体 */
     font-weight: bold;
     border-radius: 8px;
     cursor: pointer;

@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let defaultName = `玩家 ${i + 1}`;
             let defaultColor = availableColors[i % availableColors.length];
 
-            if (count === 3 && i < defaultPlayerNames.length) {
+            if (i < defaultPlayerNames.length) {
                 defaultName = defaultPlayerNames[i];
                 if (defaultPlayerConfigs[defaultName]) {
                     defaultColor = defaultPlayerConfigs[defaultName].color;
