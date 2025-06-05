@@ -812,6 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function preloadDulangBgm() {
         loadingOverlay.classList.add('active');
         dulangBgm.load();
+        dulangBgm.loop = true; // 设置循环播放
         
         dulangBgm.addEventListener('canplaythrough', () => {
             dulangBgmLoaded = true;
