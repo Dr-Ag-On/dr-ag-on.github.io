@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderAdjustmentList = document.getElementById('order-adjustment-list');
     const confirmOrderBtn = document.getElementById('confirm-order-btn');
     const cancelOrderBtn = document.getElementById('cancel-order-btn');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const dulangBgm = document.getElementById('dulang-bgm');
 
     let currentTimerMode = 1; // Default to mode 1
     const timerModeSettings = {
@@ -31,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTurnStartTime = 0; // Timestamp for the start of the active player's current segment of time
     //每回合开始播放的音频
     const turnStartSound = new Audio('turn_start.mp3'); // 预加载回合开始音频
+    let dulangBgmLoaded = false;
+    let dulangBgmPosition = 0;
 
     const defaultPlayerNames = ["雷锋", "dulang", "开心"];
     const availableColors = ['#FF6B6B', '#45B7D1', '#4ECDC4', '#FED766', '#9B59B6', '#F3A683', '#FFC300', '#DAF7A6', '#C70039', '#900C3F'];
@@ -520,24 +524,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startPlayerTurn(player) {
-        if (timerInterval) clearInterval(timerInterval);
-        if (gamePaused) return;
-
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
         currentPlayerIndex = players.findIndex(p => p.id === player.id);
-        currentTurnStartTime = Date.now(); 
+        currentTurnStartTime = Date.now();
         highlightActivePlayerCard();
-        
-        // 重置音频并播放
-        turnStartSound.currentTime = 0;
-        turnStartSound.play().catch(e => console.warn("Turn start sound play failed", e));
+        turnStartSound.play();
 
-        // Mode 1: Count up with 0.1s precision
+        // 如果是 dulang 的回合，播放 BGM
+        if (player.name === 'dulang') {
+            playDulangBgm();
+        } else {
+            pauseDulangBgm();
+        }
+
         timerInterval = setInterval(() => {
-            if (gamePaused) return;
-            const elapsedTimeInTurn = (Date.now() - currentTurnStartTime) / 1000;
-            const totalPlayerTime = player.time + elapsedTimeInTurn;
-            updatePlayerCardTimeDisplay(player, totalPlayerTime);
-        }, 100); // 更新频率提高到100ms
+            if (!gamePaused) {
+                const currentTime = Date.now();
+                const elapsedTime = (currentTime - currentTurnStartTime) / 1000;
+                player.time += elapsedTime;
+                currentTurnStartTime = currentTime;
+                updatePlayerCardTimeDisplay(player, player.time);
+            }
+        }, 100);
     }
 
     function stopCurrentPlayerTimer() {
@@ -555,39 +565,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function switchToNextPlayer() {
+        if (players.length === 0) return;
+
         stopCurrentPlayerTimer();
-        playTurnSwitchFeedback(players[currentPlayerIndex].id);
+        const currentPlayer = players[currentPlayerIndex];
         
-        // 找到下一个未pass的玩家
-        let nextIndex = (currentPlayerIndex + 1) % players.length;
-        let allPassed = true; // 标记是否所有玩家都pass了
-        
-        while (players[nextIndex].passed) {
-            nextIndex = (nextIndex + 1) % players.length;
-            // 如果所有玩家都pass了，回到当前玩家
-            if (nextIndex === currentPlayerIndex) {
-                allPassed = true;
-                break;
-            }
+        // 如果当前是 dulang 的回合，暂停 BGM
+        if (currentPlayer.name === 'dulang') {
+            pauseDulangBgm();
         }
-        
-        // 如果还有未pass的玩家
-        if (!players[nextIndex].passed) {
-            allPassed = false;
-        }
-        
-        // 如果所有玩家都pass了，自动暂停游戏
-        if (allPassed) {
-            console.log("进入暂停状态")
-            gamePaused = true;
-            pauseResumeBtn.textContent = '继续 (Alt+S)';
-            nextTurnBtn.disabled = true;
-            highlightActivePlayerCard();
-            return;
-        }
-        
-        currentPlayerIndex = nextIndex;
-        startPlayerTurn(players[currentPlayerIndex]);
+
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        const nextPlayer = players[currentPlayerIndex];
+        startPlayerTurn(nextPlayer);
     }
 
     function switchToPlayer(player) {
@@ -786,4 +776,39 @@ document.addEventListener('DOMContentLoaded', () => {
             drawerContent.classList.remove('active');
         }
     });
+
+    // 预加载 dulang 的 BGM
+    function preloadDulangBgm() {
+        loadingOverlay.classList.add('active');
+        dulangBgm.load();
+        
+        dulangBgm.addEventListener('canplaythrough', () => {
+            dulangBgmLoaded = true;
+            loadingOverlay.classList.remove('active');
+        });
+
+        dulangBgm.addEventListener('error', () => {
+            console.error('Failed to load dulang BGM');
+            loadingOverlay.classList.remove('active');
+        });
+    }
+
+    // 播放 dulang 的 BGM
+    function playDulangBgm() {
+        if (dulangBgmLoaded) {
+            dulangBgm.currentTime = dulangBgmPosition;
+            dulangBgm.play();
+        }
+    }
+
+    // 暂停 dulang 的 BGM
+    function pauseDulangBgm() {
+        if (dulangBgmLoaded) {
+            dulangBgmPosition = dulangBgm.currentTime;
+            dulangBgm.pause();
+        }
+    }
+
+    // 在初始化时预加载 BGM
+    preloadDulangBgm();
 });
