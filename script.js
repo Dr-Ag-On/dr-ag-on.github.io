@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerSetupSection.classList.remove('active-section');
         gameInProgressSection.classList.add('active-section');
         gamePaused = false;
-        pauseResumeBtn.textContent = '暂停 (Alt+S)';
+        pauseResumeBtn.textContent = '暂停 (S)';
         pauseResumeBtn.disabled = false;
         nextTurnBtn.disabled = false; // Assuming nextTurnBtn is still part of UI for manual advance
         players.forEach(p => {
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 添加下一位玩家按键
             const nextPlayerBtn = document.createElement('button');
             nextPlayerBtn.classList.add('next-player-btn');
-            nextPlayerBtn.textContent = `下一位 (Alt+${index + 1})`;
+            nextPlayerBtn.textContent = `下一位 (${index + 1})`;
             nextPlayerBtn.disabled = true; // 默认禁用
             nextPlayerBtn.addEventListener('click', () => {
                 if (!gamePaused && player.id === players[currentPlayerIndex].id) {
@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (allPassed) {
             console.log("进入暂停状态")
             gamePaused = true;
-            pauseResumeBtn.textContent = '继续 (Alt+S)';
+            pauseResumeBtn.textContent = '继续 (S)';
             nextTurnBtn.disabled = true;
             highlightActivePlayerCard();
             return;
@@ -629,12 +629,12 @@ document.addEventListener('DOMContentLoaded', () => {
         gamePaused = !gamePaused;
         if (gamePaused) {
             stopCurrentPlayerTimer();
-            pauseResumeBtn.textContent = '继续 (Alt+S)';
+            pauseResumeBtn.textContent = '继续 (S)';
             nextTurnBtn.disabled = true;
             // 暂停时也暂停 BGM
             pauseDulangBgm();
         } else {
-            pauseResumeBtn.textContent = '暂停 (Alt+S)';
+            pauseResumeBtn.textContent = '暂停 (S)';
             nextTurnBtn.disabled = false;
             startPlayerTurn(players[currentPlayerIndex]); // Resume with the current player
         }
@@ -655,16 +655,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (gameInProgressSection.classList.contains('active-section')) {
-            // 检查是否按下了Alt + 数字键
-            if (e.altKey && e.key >= '1' && e.key <= '9') {
+            // 检查是否按下了数字键
+            if (e.key >= '1' && e.key <= '9') {
                 const playerIndex = parseInt(e.key) - 1;
                 if (playerIndex < players.length && playerIndex === currentPlayerIndex) {
                     e.preventDefault();
                     switchToNextPlayer();
                 }
             }
-            // 检查是否按下了Alt + S键
-            if (e.altKey && e.key.toLowerCase() === 's') {
+            // 检查是否按下了S键
+            if (e.key.toLowerCase() === 's') {
                 e.preventDefault();
                 pauseResumeBtn.click();
             }
@@ -808,39 +808,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 预加载 dulang 的 BGM
-    function preloadDulangBgm() {
+    // 角色BGM配置（可扩展）
+    const characterBgmConfig = {
+        dulang: {
+            audio: dulangBgm, // 需在HTML中定义对应audio元素
+            loop: true,
+            loaded: false,
+            currentTime: 0
+        },
+        leifeng: {
+            audio: leifengBgm, // 需在HTML中添加新的audio元素
+            loop: true,
+            loaded: false,
+            currentTime: 0
+        }
+        // 未来可添加更多角色: { audio: xxxBgm, loop: true, loaded: false, currentTime: 0 }
+    };
+
+    // 通用预加载BGM函数
+    function preloadCharacterBgm(character) {
+        const config = characterBgmConfig[character];
+        if (!config) return;
+
         loadingOverlay.classList.add('active');
-        dulangBgm.load();
-        dulangBgm.loop = true; // 设置循环播放
-        
-        dulangBgm.addEventListener('canplaythrough', () => {
-            dulangBgmLoaded = true;
+        config.audio.load();
+        config.audio.loop = config.loop;
+
+        config.audio.addEventListener('canplaythrough', () => {
+            config.loaded = true;
             loadingOverlay.classList.remove('active');
         });
 
-        dulangBgm.addEventListener('error', () => {
-            console.error('Failed to load dulang BGM');
+        config.audio.addEventListener('error', () => {
+            console.error(`Failed to load ${character} BGM`);
             loadingOverlay.classList.remove('active');
         });
     }
 
-    // 播放 dulang 的 BGM
-    function playDulangBgm() {
-        if (dulangBgmLoaded) {
-            dulangBgm.currentTime = dulangBgmPosition;
-            dulangBgm.play();
+    // 通用播放BGM函数
+    function playCharacterBgm(character) {
+        const config = characterBgmConfig[character];
+        if (config?.loaded) {
+            config.audio.currentTime = config.currentTime;
+            config.audio.play();
         }
     }
 
-    // 暂停 dulang 的 BGM
-    function pauseDulangBgm() {
-        if (dulangBgmLoaded) {
-            dulangBgmPosition = dulangBgm.currentTime;
-            dulangBgm.pause();
+    // 通用暂停BGM函数
+    function pauseCharacterBgm(character) {
+        const config = characterBgmConfig[character];
+        if (config?.loaded) {
+            config.currentTime = config.audio.currentTime;
+            config.audio.pause();
         }
     }
 
-    // 在初始化时预加载 BGM
-    preloadDulangBgm();
+    // 初始化时预加载所有角色BGM
+    Object.keys(characterBgmConfig).forEach(character => preloadCharacterBgm(character));
 });
