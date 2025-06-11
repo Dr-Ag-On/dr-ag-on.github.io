@@ -1071,3 +1071,22 @@ button:disabled {
 .drawer-content .debug-toggle i {
     font-size: 14px;
 }
+
+.player-card.game-card {
+    position: relative; /* 为音乐图标的绝对定位做准备 */
+}
+
+.music-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: white;
+    font-size: 1.2em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.music-icon:hover {
+    opacity: 1;
+}

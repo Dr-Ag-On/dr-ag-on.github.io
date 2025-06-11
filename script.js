@@ -489,6 +489,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.classList.add('passed');
             }
 
+            // 添加音乐图标
+            const musicIcon = document.createElement('div');
+            musicIcon.classList.add('music-icon');
+            musicIcon.innerHTML = '<i class="fas fa-music"></i>';
+            console.log('playerBgmMap.has(player.name)', playerBgmMap.has(player.name),player.name,playerBgmMap)
+            musicIcon.style.display = playerBgmMap.has(player.name) ? 'block' : 'none';
+            card.appendChild(musicIcon);
+
             const nameDisplay = document.createElement('div');
             nameDisplay.classList.add('player-name-game');
             nameDisplay.textContent = player.name;
@@ -874,11 +882,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 修改BGM管理函数，使用玩家名字
     function loadPlayerBgm(playerName) {
+        console.log('loadPlayerBgm', playerName)
         const bgm = new Audio(`${playerName}_bgm.mp3`);
         bgm.loop = true;
         
         bgm.addEventListener('canplaythrough', () => {
             playerBgmMap.set(playerName, bgm);
+            renderPlayerCardsGame();
         });
 
         bgm.addEventListener('error', () => {
@@ -887,6 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playPlayerBgm(playerName) {
+        console.log('playPlayerBgm', playerName,playerBgmMap)
         const bgm = playerBgmMap.get(playerName);
         if (bgm) {
             bgm.currentTime = currentBgmPosition;
