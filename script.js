@@ -93,7 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmOrderBtn = document.getElementById('confirm-order-btn');
     const cancelOrderBtn = document.getElementById('cancel-order-btn');
     const loadingOverlay = document.getElementById('loading-overlay');
-    const dulangBgm = document.getElementById('dulang-bgm');
+    let playerBgmMap = new Map(); // 存储每个玩家的BGM
+    let currentBgmPosition = 0; // 当前BGM播放位置
 
     let currentTimerMode = 1; // Default to mode 1
     const timerModeSettings = {
@@ -107,8 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTurnStartTime = 0; // Timestamp for the start of the active player's current segment of time
     //每回合开始播放的音频
     const turnStartSound = new Audio('turn_start.mp3'); // 预加载回合开始音频
-    let dulangBgmLoaded = false;
-    let dulangBgmPosition = 0;
 
     const defaultPlayerNames = ["雷锋", "dulang", "开心"];
     const availableColors = ['#FF6B6B', '#45B7D1', '#4ECDC4', '#FED766', '#9B59B6', '#F3A683', '#FFC300', '#DAF7A6', '#C70039', '#900C3F'];
@@ -434,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const turnSwitchSound = new Audio('turn-switch.mp3'); // Placeholder for sound file
 
     startGameBtn.addEventListener('click', () => {
-
         if (players.length === 0) {
             alert('请至少添加一名玩家。');
             return;
@@ -445,10 +443,12 @@ document.addEventListener('DOMContentLoaded', () => {
         gamePaused = false;
         pauseResumeBtn.textContent = '暂停 (S)';
         pauseResumeBtn.disabled = false;
-        nextTurnBtn.disabled = false; // Assuming nextTurnBtn is still part of UI for manual advance
+        nextTurnBtn.disabled = false;
         players.forEach(p => {
             p.time = 0; 
             p.eliminated = false;
+            // 为每个玩家加载BGM，使用玩家名字
+            loadPlayerBgm(p.name);
         });
         currentPlayerIndex = 0;
         renderPlayerCardsGame();
@@ -606,12 +606,8 @@ document.addEventListener('DOMContentLoaded', () => {
         highlightActivePlayerCard();
         turnStartSound.play();
 
-        // 如果是 dulang 的回合，播放 BGM
-        if (player.name === 'dulang') {
-            playDulangBgm();
-        } else {
-            pauseDulangBgm();
-        }
+        // 播放当前玩家的BGM，使用玩家名字
+        playPlayerBgm(player.name);
 
         timerInterval = setInterval(() => {
             if (!gamePaused) {
@@ -629,7 +625,6 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(timerInterval);
             timerInterval = null;
             const player = players[currentPlayerIndex];
-            // Mode 1: Accumulate time
             const endTime = Date.now();
             const elapsedSeconds = (endTime - currentTurnStartTime) / 1000;
             player.time += elapsedSeconds;
@@ -644,32 +639,26 @@ document.addEventListener('DOMContentLoaded', () => {
         stopCurrentPlayerTimer();
         const currentPlayer = players[currentPlayerIndex];
         
-        // 如果当前是 dulang 的回合，暂停 BGM
-        if (currentPlayer.name === 'dulang') {
-            pauseDulangBgm();
-        }
+        // 暂停当前玩家的BGM，使用玩家名字
+        pausePlayerBgm(currentPlayer.name);
 
         playTurnSwitchFeedback(players[currentPlayerIndex].id);
         
-        // 找到下一个未pass的玩家
         let nextIndex = (currentPlayerIndex + 1) % players.length;
-        let allPassed = true; // 标记是否所有玩家都pass了
+        let allPassed = true;
         
         while (players[nextIndex].passed) {
             nextIndex = (nextIndex + 1) % players.length;
-            // 如果所有玩家都pass了，回到当前玩家
             if (nextIndex === currentPlayerIndex) {
                 allPassed = true;
                 break;
             }
         }
         
-        // 如果还有未pass的玩家
         if (!players[nextIndex].passed) {
             allPassed = false;
         }
         
-        // 如果所有玩家都pass了，自动暂停游戏
         if (allPassed) {
             console.log("进入暂停状态")
             gamePaused = true;
@@ -705,14 +694,14 @@ document.addEventListener('DOMContentLoaded', () => {
             stopCurrentPlayerTimer();
             pauseResumeBtn.textContent = '继续 (S)';
             nextTurnBtn.disabled = true;
-            // 暂停时也暂停 BGM
-            pauseDulangBgm();
+            // 暂停当前玩家的BGM，使用玩家名字
+            pausePlayerBgm(players[currentPlayerIndex].name);
         } else {
             pauseResumeBtn.textContent = '暂停 (S)';
             nextTurnBtn.disabled = false;
-            startPlayerTurn(players[currentPlayerIndex]); // Resume with the current player
+            startPlayerTurn(players[currentPlayerIndex]);
         }
-        highlightActivePlayerCard(); // Update visual state
+        highlightActivePlayerCard();
     });
 
     nextTurnBtn.addEventListener('click', () => { // Manual next turn button
@@ -883,39 +872,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 预加载 dulang 的 BGM
-    function preloadDulangBgm() {
-        loadingOverlay.classList.add('active');
-        dulangBgm.load();
-        dulangBgm.loop = true; // 设置循环播放
+    // 修改BGM管理函数，使用玩家名字
+    function loadPlayerBgm(playerName) {
+        const bgm = new Audio(`${playerName}_bgm.mp3`);
+        bgm.loop = true;
         
-        dulangBgm.addEventListener('canplaythrough', () => {
-            dulangBgmLoaded = true;
-            loadingOverlay.classList.remove('active');
+        bgm.addEventListener('canplaythrough', () => {
+            playerBgmMap.set(playerName, bgm);
         });
 
-        dulangBgm.addEventListener('error', () => {
-            console.error('Failed to load dulang BGM');
-            loadingOverlay.classList.remove('active');
+        bgm.addEventListener('error', () => {
+            console.warn(`Failed to load BGM for player ${playerName}`);
         });
     }
 
-    // 播放 dulang 的 BGM
-    function playDulangBgm() {
-        if (dulangBgmLoaded) {
-            dulangBgm.currentTime = dulangBgmPosition;
-            dulangBgm.play();
+    function playPlayerBgm(playerName) {
+        const bgm = playerBgmMap.get(playerName);
+        if (bgm) {
+            bgm.currentTime = currentBgmPosition;
+            bgm.play().catch(e => console.warn(`Failed to play BGM for player ${playerName}:`, e));
         }
     }
 
-    // 暂停 dulang 的 BGM
-    function pauseDulangBgm() {
-        if (dulangBgmLoaded) {
-            dulangBgmPosition = dulangBgm.currentTime;
-            dulangBgm.pause();
+    function pausePlayerBgm(playerName) {
+        const bgm = playerBgmMap.get(playerName);
+        if (bgm) {
+            currentBgmPosition = bgm.currentTime;
+            bgm.pause();
         }
     }
-
-    // 在初始化时预加载 BGM
-    preloadDulangBgm();
 });
