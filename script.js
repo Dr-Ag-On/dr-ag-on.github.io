@@ -95,6 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingOverlay = document.getElementById('loading-overlay');
     let playerBgmMap = new Map(); // 存储每个玩家的BGM
     let currentBgmPosition = 0; // 当前BGM播放位置
+    let audioQueue = []; // 音频播放队列
+    let isPlayingQueue = false; // 是否正在播放队列
 
     let currentTimerMode = 1; // Default to mode 1
     const timerModeSettings = {
@@ -612,9 +614,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPlayerIndex = players.findIndex(p => p.id === player.id);
         currentTurnStartTime = Date.now();
         highlightActivePlayerCard();
-        turnStartSound.play();
-
-        // 播放当前玩家的BGM，使用玩家名字
+        
+        // 先播放切换音效，然后播放BGM
+        playTurnSwitchSound();
         playPlayerBgm(player.name);
 
         timerInterval = setInterval(() => {
@@ -880,11 +882,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 修改BGM管理函数，使用玩家名字
+    // 音频淡入淡出效果
+    function fadeAudio(audio, targetVolume, duration, onComplete) {
+        const startVolume = audio.volume;
+        const startTime = Date.now();
+        
+        function updateVolume() {
+            const currentTime = Date.now();
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            audio.volume = startVolume + (targetVolume - startVolume) * progress;
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateVolume);
+            } else if (onComplete) {
+                onComplete();
+            }
+        }
+        
+        updateVolume();
+    }
+
+    // 添加到播放队列
+    function addToAudioQueue(audio, volume = 1) {
+        audio.volume = 0; // 初始音量为0
+        audioQueue.push({ audio, volume });
+        if (!isPlayingQueue) {
+            playNextInQueue();
+        }
+    }
+
+    // 播放队列中的下一个音频
+    function playNextInQueue() {
+        if (audioQueue.length === 0) {
+            isPlayingQueue = false;
+            return;
+        }
+
+        isPlayingQueue = true;
+        const { audio, volume } = audioQueue.shift();
+        
+        // 淡入效果
+        fadeAudio(audio, volume, 100, () => {
+            // 音频播放结束后淡出
+            audio.addEventListener('ended', function onEnded() {
+                fadeAudio(audio, 0, 100, () => {
+                    audio.pause();
+                    audio.removeEventListener('ended', onEnded);
+                    playNextInQueue();
+                });
+            }, { once: true });
+
+            // 如果是BGM，不需要等待ended事件
+            if (audio.loop) {
+                playNextInQueue();
+            }
+        });
+
+        audio.play().catch(e => {
+            console.warn('Failed to play audio:', e);
+            playNextInQueue();
+        });
+    }
+
+    // 修改BGM管理函数
     function loadPlayerBgm(playerName) {
         console.log('loadPlayerBgm', playerName)
         const bgm = new Audio(`${playerName}_bgm.mp3`);
         bgm.loop = true;
+        bgm.volume = 0; // 初始音量为0
         
         bgm.addEventListener('canplaythrough', () => {
             playerBgmMap.set(playerName, bgm);
@@ -897,11 +964,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playPlayerBgm(playerName) {
-        console.log('playPlayerBgm', playerName,playerBgmMap)
+        console.log('playPlayerBgm', playerName, playerBgmMap)
         const bgm = playerBgmMap.get(playerName);
         if (bgm) {
             bgm.currentTime = currentBgmPosition;
-            bgm.play().catch(e => console.warn(`Failed to play BGM for player ${playerName}:`, e));
+            addToAudioQueue(bgm, 0.5); // BGM音量设为0.5
         }
     }
 
@@ -909,7 +976,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const bgm = playerBgmMap.get(playerName);
         if (bgm) {
             currentBgmPosition = bgm.currentTime;
-            bgm.pause();
+            fadeAudio(bgm, 0, 500, () => {
+                bgm.pause();
+            });
         }
+    }
+
+    // 修改回合切换音效播放
+    function playTurnSwitchSound() {
+        const sound = new Audio('turn_start.mp3');
+        addToAudioQueue(sound, 1); // 音效音量设为1
     }
 });
