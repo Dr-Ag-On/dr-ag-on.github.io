@@ -17,6 +17,9 @@
                 </button>
                 <div class="drawer-content">
                     <button id="new-game-in-progress-btn">新建游戏</button>
+                    <button id="debug-toggle" class="debug-toggle">
+                        <i class="fas fa-terminal"></i> 调试控制台
+                    </button>
                 </div>
             </div>
         </header>
@@ -64,6 +67,11 @@
     <audio id="dulang-bgm" preload="auto">
         <source src="dulang_bgm.mp3" type="audio/mpeg">
     </audio>
+    <div id="debug-console" class="debug-console collapsed">
+        <div class="debug-content">
+            <div id="debug-output"></div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

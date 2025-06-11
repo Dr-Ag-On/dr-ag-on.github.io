@@ -1,4 +1,78 @@
+// 调试控制台功能
+const debugConsole = {
+    init() {
+        this.console = document.getElementById('debug-console');
+        this.output = document.getElementById('debug-output');
+        this.toggleBtn = document.getElementById('debug-toggle');
+        this.isCollapsed = true;
+
+        // 重写console方法
+        this.overrideConsole();
+        
+        // 绑定事件
+        this.toggleBtn.addEventListener('click', () => this.toggle());
+    },
+
+    toggle() {
+        if (this.isCollapsed) {
+            this.expand();
+        } else {
+            this.collapse();
+        }
+    },
+
+    collapse() {
+        this.console.classList.add('collapsed');
+        this.isCollapsed = true;
+    },
+
+    expand() {
+        this.console.classList.remove('collapsed');
+        this.isCollapsed = false;
+    },
+
+    log(message, type = 'log') {
+        const div = document.createElement('div');
+        div.className = type;
+        div.textContent = typeof message === 'object' ? JSON.stringify(message, null, 2) : message;
+        this.output.appendChild(div);
+        this.output.scrollTop = this.output.scrollHeight;
+    },
+
+    overrideConsole() {
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+        };
+
+        console.log = (...args) => {
+            originalConsole.log.apply(console, args);
+            this.log(args.join(' '), 'log');
+        };
+
+        console.error = (...args) => {
+            originalConsole.error.apply(console, args);
+            this.log(args.join(' '), 'error');
+        };
+
+        console.warn = (...args) => {
+            originalConsole.warn.apply(console, args);
+            this.log(args.join(' '), 'warn');
+        };
+
+        console.info = (...args) => {
+            originalConsole.info.apply(console, args);
+            this.log(args.join(' '), 'info');
+        };
+    }
+};
+
+// 初始化调试控制台
 document.addEventListener('DOMContentLoaded', () => {
+    debugConsole.init();
+
     const playerCountInput = document.getElementById('player-count');
     const playerCardsSetupDiv = document.getElementById('player-cards-setup');
     const startGameBtn = document.getElementById('start-game-btn');
@@ -654,6 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('keydown', (e) => {
+        console.log('keydown', e.key)
         if (gameInProgressSection.classList.contains('active-section')) {
             // 检查是否按下了数字键
             if (e.key >= '1' && e.key <= '9') {
