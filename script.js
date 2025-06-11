@@ -545,15 +545,14 @@ document.addEventListener('DOMContentLoaded', () => {
             passbyContainer.appendChild(passbyBtn);
 
             card.addEventListener('click', () => {
-                if (gamePaused || player.id !== players[currentPlayerIndex].id) {
+                if (player.passed) return; // 如果玩家已经pass，不做任何操作
+                
+                if (player.id === players[currentPlayerIndex].id) {
                     if (!gamePaused) {
-                         const targetPlayerIndex = players.findIndex(p => p.id === player.id);
-                         if (targetPlayerIndex !== -1) {
-                            switchToPlayer(players[targetPlayerIndex]);
-                         }
+                        switchToNextPlayer();
                     }
                 } else {
-                    switchToNextPlayer();
+                    switchToPlayer(player);
                 }
             });
 
@@ -684,10 +683,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function switchToPlayer(player) {
         if (player.passed) return; // 不能切换到已pass的玩家
-        if (player.id === players[currentPlayerIndex].id && !gamePaused) return; 
+        if (player.id === players[currentPlayerIndex].id) return; // 如果点击的是当前玩家，不做任何操作
+        
         stopCurrentPlayerTimer();
         playTurnSwitchFeedback(players[currentPlayerIndex].id); 
-        startPlayerTurn(player);
+        currentPlayerIndex = players.findIndex(p => p.id === player.id);
+        highlightActivePlayerCard();
+        
+        // 如果游戏是暂停状态，不启动计时器
+        if (!gamePaused) {
+            startPlayerTurn(player);
+        }
     }
 
     function playTurnSwitchFeedback(playerId) {
