@@ -440,10 +440,10 @@ document.addEventListener('DOMContentLoaded', () => {
         saveSettings(); // Save final setup before starting
         playerSetupSection.classList.remove('active-section');
         gameInProgressSection.classList.add('active-section');
-        gamePaused = false;
-        pauseResumeBtn.textContent = '暂停 (S)';
+        gamePaused = true; // 设置为暂停状态
+        pauseResumeBtn.textContent = '继续 (S)';
         pauseResumeBtn.disabled = false;
-        nextTurnBtn.disabled = false;
+        nextTurnBtn.disabled = true;
         players.forEach(p => {
             p.time = 0; 
             p.eliminated = false;
